@@ -4,8 +4,8 @@
 
 """ClarifyBeforeUGo
 
-This algorithm tries to improve code generation by treating requirements analysis as a separate phase: 
-identify specification defects first, resolve them through iterative human clarification, 
+This algorithm tries to improve code generation by treating requirements analysis as a separate phase:
+identify specification defects first, resolve them through iterative human clarification,
 and only then generate the implementation.
 If issues are found, an atomic clarifying question is asked for the most
 critical one. After clarification (or when no issues remain), a solution
@@ -81,14 +81,14 @@ Enclose your solution in ```python and ```.
 class PreemptiveClarification(ClarificationAlgorithmBase):
     DEFAULT_CONFIG = {"generation_attempts": 3}
 
-    def analyze_prompt(self, env: ClarificationEnvironment, prompt: str) -> tuple[str | None, str | None]:
+    def analyze_prompt(
+        self, env: ClarificationEnvironment, prompt: str
+    ) -> tuple[str | None, str | None]:
         """Analyze the prompt for underspecification issues before generating code.
 
         Returns (category, question) if an issue is found, or (None, None) if the prompt is clear.
         """
-        response = env.llm(
-            ANALYSIS_PROMPT_TEMPLATE.replace("{prompt}", prompt)
-        )
+        response = env.llm(ANALYSIS_PROMPT_TEMPLATE.replace("{prompt}", prompt))
 
         if "NO_ISSUES" in response:
             return None, None
@@ -113,16 +113,13 @@ class PreemptiveClarification(ClarificationAlgorithmBase):
     ) -> str:
         if clarifications:
             content = (
-                REGEN_CODE_PROMPT_TEMPLATE
-                .replace("{prompt}", problem["prompt"])
+                REGEN_CODE_PROMPT_TEMPLATE.replace("{prompt}", problem["prompt"])
                 .replace("{clarification}", "\n".join(clarifications))
                 .replace("{entry_point}", problem["entry_point"])
             )
         else:
-            content = (
-                CODE_PROMPT_TEMPLATE
-                .replace("{prompt}", problem["prompt"])
-                .replace("{entry_point}", problem["entry_point"])
+            content = CODE_PROMPT_TEMPLATE.replace("{prompt}", problem["prompt"]).replace(
+                "{entry_point}", problem["entry_point"]
             )
 
         messages = [{"role": "user", "content": content}]
@@ -151,9 +148,7 @@ class PreemptiveClarification(ClarificationAlgorithmBase):
 
             try:
                 answer = env.ask_human(question)
-                clarifications.append(
-                    f"Q ({category}): {question}\nA: {answer}\n"
-                )
+                clarifications.append(f"Q ({category}): {question}\nA: {answer}\n")
             except TooManyQuestionException:
                 break
 
