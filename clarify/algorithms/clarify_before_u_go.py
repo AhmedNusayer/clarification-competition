@@ -81,7 +81,7 @@ Enclose your solution in ```python and ```.
 class PreemptiveClarification(ClarificationAlgorithmBase):
     DEFAULT_CONFIG = {"generation_attempts": 3}
 
-    def _analyze_prompt(self, env: ClarificationEnvironment, prompt: str) -> tuple[str | None, str | None]:
+    def analyze_prompt(self, env: ClarificationEnvironment, prompt: str) -> tuple[str | None, str | None]:
         """Analyze the prompt for underspecification issues before generating code.
 
         Returns (category, question) if an issue is found, or (None, None) if the prompt is clear.
@@ -108,7 +108,7 @@ class PreemptiveClarification(ClarificationAlgorithmBase):
 
         return None, None
 
-    def _generate_solution(
+    def generate_solution(
         self, env: ClarificationEnvironment, problem: dict[str, str], clarifications: list[str]
     ) -> str:
         if clarifications:
@@ -144,7 +144,7 @@ class PreemptiveClarification(ClarificationAlgorithmBase):
 
         # Iteratively analyze and clarify before generating any code
         while env.can_ask():
-            category, question = self._analyze_prompt(env, problem["prompt"])
+            category, question = self.analyze_prompt(env, problem["prompt"])
 
             if question is None:
                 break
@@ -158,4 +158,4 @@ class PreemptiveClarification(ClarificationAlgorithmBase):
                 break
 
         # Generate the final solution with all gathered clarifications
-        return self._generate_solution(env, problem, clarifications)
+        return self.generate_solution(env, problem, clarifications)
